@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "582157984472",
+    "firebase_url": "https://asistentevirtual-b9f54.firebaseio.com",
+    "project_id": "asistentevirtual-b9f54",
+    "storage_bucket": "asistentevirtual-b9f54.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:582157984472:android:eb88a2a11f475a9f",
+        "android_client_info": {
+          "package_name": "com.example.jona.asistentevirtual"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "582157984472-ouf2fnkq1crmi6ecckjepo6inkgldauj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.jona.asistentevirtual",
+            "certificate_hash": "3808561a798c9b2171eda0998f7b1c892c1219a3"
+          }
+        },
+        {
+          "client_id": "582157984472-5gvqh07qn7df5j3qhcs9etni5q4lndvn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARaEufpOoApcbajlDUgnqp2mYkK3iPMAI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "582157984472-5gvqh07qn7df5j3qhcs9etni5q4lndvn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

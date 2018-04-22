@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">AsistenteVirtual</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="not_login_in">No se pudo iniciar sesión con Google</string>
+    <string name="not_close_session">No se pudo cerrar sesión</string>
+    <string name="not_firebase_auth">No se pudo autenticar con Firebase</string>
+</resources>
