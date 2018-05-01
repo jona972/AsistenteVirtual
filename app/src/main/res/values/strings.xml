@@ -9,4 +9,10 @@
     <string name="not_login_in">No se pudo iniciar sesión con Google</string>
     <string name="not_close_session">No se pudo cerrar sesión</string>
     <string name="not_firebase_auth">No se pudo autenticar con Firebase</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="edit_text_chat">Escribe un mensaje...</string>
+    <string name="title_activity_content_messages">ContentMessagesActivity</string>
 </resources>

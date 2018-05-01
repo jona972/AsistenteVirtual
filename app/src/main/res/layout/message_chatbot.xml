@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/chatBotImage"
+        android:src="@drawable/common_google_signin_btn_icon_dark_normal"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+    <com.github.library.bubbleview.BubbleTextView
+        android:id="@+id/textMessageChatBot"
+        android:padding="10dp"
+        android:textColor="#FFF"
+        android:layout_toRightOf="@id/chatBotImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:arrowWidth="8dp"
+        app:angle="8dp"
+        app:arrowHeight="10dp"
+        app:arrowPosition="14dp"
+        app:arrowLocation="left"
+        app:arrowCenter="true"
+        app:bubbleColor="@color/colorPrimary"
+        android:layout_marginBottom="5dp"/>
+
+</RelativeLayout>
