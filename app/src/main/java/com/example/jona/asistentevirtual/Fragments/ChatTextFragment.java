@@ -1,33 +1,29 @@
 package com.example.jona.asistentevirtual.Fragments;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.jona.asistentevirtual.Adapters.MessagesAdapter;
+import com.example.jona.asistentevirtual.Models.DialogflowModel;
 import com.example.jona.asistentevirtual.Models.TextMessageModel;
 import com.example.jona.asistentevirtual.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ai.api.AIDataService;
-import ai.api.AIServiceException;
-import ai.api.android.AIService;
-import ai.api.android.AIConfiguration;
-import ai.api.model.AIRequest;
-import ai.api.model.AIResponse;
-import ai.api.model.Result;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,14 +46,9 @@ public class ChatTextFragment extends Fragment {
     // Declaración de variables para poder controlar los mensajes del usuario y del ChatBot.
     private RecyclerView rvListMessages;
     private List<TextMessageModel> listMessagesText;
-    private Button btnSendMessage;
+    private FloatingActionButton btnSendMessage;
     private EditText txtMessageUserSend;
     private MessagesAdapter messagesAdapter;
-
-    // Declaración de variable para interactuar con Dialogflow.
-    private AIService aiService;
-    private AIDataService aiDataService;
-    private static final String ACCESS_CLIENT_TOKEN = "118cb22bf2054babbe581439d0483a77";
 
     private OnFragmentInteractionListener mListener;
 
@@ -107,18 +98,24 @@ public class ChatTextFragment extends Fragment {
         txtMessageUserSend = view .findViewById(R.id.txtUserMessageSend); // Instanciar la varibale con el id del Edit Text.
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
+        linearLayoutManager.setStackFromEnd(true);
         rvListMessages.setLayoutManager(linearLayoutManager);
+
+        ValidateAudioRecord(view); // Permitimos la entrada de audio al chat.
 
         messagesAdapter = new MessagesAdapter(listMessagesText, view.getContext());
         rvListMessages.setAdapter(messagesAdapter);
 
-        ConfigurationDialogflow(view); // Para configurar el API de Dialogflow.
+        final DialogflowModel dialogflowModel = new DialogflowModel(view, listMessagesText, rvListMessages, messagesAdapter, txtMessageUserSend);
+        dialogflowModel.ConfigurationDialogflow(); // Para configurar el API de Dialogflow.
+
+        ChangeIconButton(); // Se llama al método de cambiar de icono.
 
         // Acción del boton para Enviar Mensaje.
         btnSendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CreateMessage(txtMessageUserSend.getText().toString(), view);
+                dialogflowModel.CreateMessage(txtMessageUserSend.getText().toString()); // Para enviar un mensaje del usuario o de Dialogflow.
             }
         });
 
@@ -165,66 +162,30 @@ public class ChatTextFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void setScrollbarChat(){
-        rvListMessages.scrollToPosition(messagesAdapter.getItemCount()-1);
-    }
-
-    public void CreateMessage(String message, final View view) {
-        TextMessageModel textMessageModel = new TextMessageModel(message, true); // Inicializamos la clase con el mensaje y quien envia el mensaje.
-        listMessagesText.add(textMessageModel);
-
-        SendMessageToDialogflow(view); // Para enviar un mensaje a Dialogflow y para recibir el mensaje.
-        txtMessageUserSend.setText(""); // Para limpiar el texto al momento de que envia un mensaje el usuario.
-        messagesAdapter.notifyDataSetChanged();
-        setScrollbarChat();
-    }
-
-    // Metodo de configuración para conectarse con Dialogflow.
-    public void ConfigurationDialogflow(View view) {
-        final AIConfiguration configurationAI = new AIConfiguration(ACCESS_CLIENT_TOKEN,
-                AIConfiguration.SupportedLanguages.Spanish,
-                AIConfiguration.RecognitionEngine.System);
-
-        // Agregar la configuración para conectarse con Dialogflow
-        aiService = AIService.getService(view.getContext(), configurationAI);
-        aiDataService = new AIDataService(configurationAI);
-    }
-
-    // Método para enviar el mensaje a Dialogflow.
-    public void SendMessageToDialogflow(final View view) {
-        final AIRequest aiRequest = new AIRequest();
-        final String message = txtMessageUserSend.getText().toString();
-        aiRequest.setQuery(message); // Enviamos la pregunta del usuario a Dialogflow.
-
-        new AsyncTask<AIRequest, Void, AIResponse>() {
+    // Método para cambiar el icono del boton segun la longitud del texto del usuario.
+    private void ChangeIconButton() {
+        txtMessageUserSend.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            protected AIResponse doInBackground(AIRequest... aiRequests) {
-                final AIRequest request = aiRequests[0];
-                try {
-                    final AIResponse response = aiDataService.request(aiRequest);
-                    return response;
-                } catch (AIServiceException e) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (txtMessageUserSend.getText().toString().trim().length() != 0) {
+                    btnSendMessage.setImageResource(R.drawable.ic_menu_send);
+                } else {
+                    btnSendMessage.setImageResource(R.drawable.ic_keyboard_voice);
                 }
-                return null;
             }
 
-            // Método para recibir la respuesta de Dialogflow.
             @Override
-            protected void onPostExecute(AIResponse response) {
-                if (response != null) {
-                    Result result = response.getResult();
-                    String speech = result.getFulfillment().getSpeech();
+            public void afterTextChanged(Editable s) {}
+        });
+    }
 
-                    TextMessageModel textMessageModel = new TextMessageModel(speech, false);
-                    listMessagesText.add(textMessageModel);
-
-                    MessagesAdapter messagesAdapter = new MessagesAdapter(listMessagesText, view.getContext());
-                    rvListMessages.setAdapter(messagesAdapter);
-                    messagesAdapter.notifyDataSetChanged();
-                    setScrollbarChat();
-                }
-            }
-        }.execute(aiRequest);
+    // Método para permitir la entrada de audio.
+    private void ValidateAudioRecord(View view) {
+        if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+        }
     }
 }
