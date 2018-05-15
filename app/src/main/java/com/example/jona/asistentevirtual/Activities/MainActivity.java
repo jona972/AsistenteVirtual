@@ -132,17 +132,17 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_menu_chat_text) {
             openChatTextFragment();
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_menu_chat_voice) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_about) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_character) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_places_visited) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_exit_to_app) {
             logOut();
         }
 
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    // Fin de los metodos del navigation drawer.
+    // Fin de los métodos del navigation drawer.
 
     // Métodos para iniciar sesión silencioso de Google.
     private void setUserData(FirebaseUser user) {

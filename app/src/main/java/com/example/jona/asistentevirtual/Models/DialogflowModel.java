@@ -10,26 +10,24 @@ import com.example.jona.asistentevirtual.Adapters.MessagesAdapter;
 import java.util.List;
 
 import ai.api.AIDataService;
-import ai.api.AIListener;
 import ai.api.AIServiceException;
 import ai.api.android.AIConfiguration;
-import ai.api.android.AIService;
-import ai.api.model.AIError;
 import ai.api.model.AIRequest;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
 
-public class DialogflowModel implements AIListener {
+public class DialogflowModel {
 
     // Declaración de variables para interactuar con Dialogflow.
-    private AIService aiService;
     private AIDataService aiDataService;
     private static final String ACCESS_CLIENT_TOKEN = "118cb22bf2054babbe581439d0483a77";
 
+    private final int SPEECH_RECOGNITION_CODE = 1;
+
     // Declaración de variables para inicializar este modelo.
     private View view;
-    private final List<TextMessageModel> listMessagesText;
-    private final RecyclerView rvListMessages;
+    private List<TextMessageModel> listMessagesText;
+    private RecyclerView rvListMessages;
     private MessagesAdapter messagesAdapter;
     private EditText txtMessageUserSend;
 
@@ -48,49 +46,41 @@ public class DialogflowModel implements AIListener {
                 AIConfiguration.RecognitionEngine.System);
 
         // Agregar la configuración para conectarse con Dialogflow
-        aiService = AIService.getService(view.getContext(), configurationAI);
-        aiService.setListener(this);
         aiDataService = new AIDataService(configurationAI);
     }
 
     // Método para enviar el mensaje a Dialogflow.
     public void SendMessageTextToDialogflow(final String message) {
-        if (!message.equals("")) { // Si el mensaje es diferente de nulo significa que es un mensaje de texto.
+        final AIRequest aiRequest = new AIRequest();
+        aiRequest.setQuery(message); // Enviamos la pregunta del usuario a Dialogflow.
 
-            final AIRequest aiRequest = new AIRequest();
-            aiRequest.setQuery(message); // Enviamos la pregunta del usuario a Dialogflow.
+        new AsyncTask<AIRequest, Void, AIResponse>() {
 
-            new AsyncTask<AIRequest, Void, AIResponse>() {
-
-                @Override
-                protected AIResponse doInBackground(AIRequest... aiRequests) {
-                    final AIRequest request = aiRequests[0];
-                    try {
-                        final AIResponse response = aiDataService.request(aiRequest);
-                        return response;
-                    } catch (AIServiceException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
+            @Override
+            protected AIResponse doInBackground(AIRequest... aiRequests) {
+                final AIRequest request = aiRequests[0];
+                try {
+                    final AIResponse response = aiDataService.request(aiRequest);
+                    return response;
+                } catch (AIServiceException e) {
+                    e.printStackTrace();
                 }
+                return null;
+            }
 
-                // Método para recibir la respuesta de Dialogflow.
-                @Override
-                protected void onPostExecute(AIResponse response) {
-                    if (response != null) {
-                        ResponseToDialogflow(response);
-                    }
+            // Método para recibir la respuesta de Dialogflow.
+            @Override
+            protected void onPostExecute(AIResponse response) {
+                if (response != null) {
+                    ResponseToDialogflow(response);
                 }
-            }.execute(aiRequest);
-
-        } else { // Caso contrario es un mensaje de voz.
-            aiService.startListening();
-        }
+            }
+        }.execute(aiRequest);
     }
 
     // Método para posicionar el último elemento del Recycle View.
-    public void setScrollbarChat(){
-        rvListMessages.scrollToPosition(messagesAdapter.getItemCount()-1);
+    public void setScrollbarChat() {
+        rvListMessages.scrollToPosition(messagesAdapter.getItemCount() - 1);
     }
 
     // Método para crear un nuevo mensaje del usuario y del ChatBot.
@@ -139,27 +129,4 @@ public class DialogflowModel implements AIListener {
         messagesAdapter.notifyDataSetChanged();
         setScrollbarChat();
     }
-
-    // Métodos para enviar mensajes por voz.
-    @Override
-    public void onResult(AIResponse result) {
-        Result response = result.getResult();
-        String resultAudioRecorder = response.getResolvedQuery();
-        CreateMessage(resultAudioRecorder); // Enviamos la pregunta del usuario a Dialogflow y recibimos la respuesta.
-    }
-
-    @Override
-    public void onError(AIError error) {}
-
-    @Override
-    public void onAudioLevel(float level) {}
-
-    @Override
-    public void onListeningStarted() {}
-
-    @Override
-    public void onListeningCanceled() {}
-
-    @Override
-    public void onListeningFinished() {}
 }

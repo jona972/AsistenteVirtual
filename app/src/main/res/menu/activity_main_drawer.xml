@@ -5,34 +5,30 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_menu_chat_text"
+            android:icon="@drawable/ic_menu_textsms"
+            android:title="Chat por Texto" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_menu_chat_voice"
+            android:icon="@drawable/ic_menu_voice_chat"
+            android:title="Chat por Voz" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_menu_about"
+            android:title="Acerca De" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
-    </group>
+            android:id="@+id/nav_character"
+            android:icon="@drawable/ic_menu_character"
+            android:title="Personajes" />
+        <item
+            android:id="@+id/nav_places_visited"
+            android:icon="@drawable/ic_places_visited"
+            android:title="Lugares Visitados" />
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_exit_to_app"
-                android:title="Cerrar Sesión" />
-        </menu>
-    </item>
+        <item
+            android:id="@+id/nav_exit_to_app"
+            android:icon="@drawable/ic_menu_exit_to_app"
+            android:title="Cerrar Sesión" />
+    </group>
 
 </menu>
