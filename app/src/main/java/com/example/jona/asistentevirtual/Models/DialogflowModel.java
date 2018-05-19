@@ -22,8 +22,6 @@ public class DialogflowModel {
     private AIDataService aiDataService;
     private static final String ACCESS_CLIENT_TOKEN = "118cb22bf2054babbe581439d0483a77";
 
-    private final int SPEECH_RECOGNITION_CODE = 1;
-
     // Declaración de variables para inicializar este modelo.
     private View view;
     private List<TextMessageModel> listMessagesText;
@@ -50,7 +48,7 @@ public class DialogflowModel {
     }
 
     // Método para enviar el mensaje a Dialogflow.
-    public void SendMessageTextToDialogflow(final String message) {
+    private void SendMessageTextToDialogflow(final String message) {
         final AIRequest aiRequest = new AIRequest();
         aiRequest.setQuery(message); // Enviamos la pregunta del usuario a Dialogflow.
 
@@ -79,7 +77,7 @@ public class DialogflowModel {
     }
 
     // Método para posicionar el último elemento del Recycle View.
-    public void setScrollbarChat() {
+    private void setScrollbarChat() {
         rvListMessages.scrollToPosition(messagesAdapter.getItemCount() - 1);
     }
 

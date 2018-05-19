@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.jona.asistentevirtual.Fragments.ChatTextFragment;
+import com.example.jona.asistentevirtual.Fragments.DialogSignOffFragement;
 import com.example.jona.asistentevirtual.R;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -33,7 +34,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener,
-        ChatTextFragment.OnFragmentInteractionListener {
+        ChatTextFragment.OnFragmentInteractionListener, DialogSignOffFragement.NoticeDialogListener {
 
     // Declaracion de Variables para tomar los datos de la cuenta de Google.
     private CircleImageView imagePerson;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
+
+    private DialogSignOffFragement dialogSignOffFragement; // Varibale para controlar el Dialogo de cerrar sesion.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +99,7 @@ public class MainActivity extends AppCompatActivity
     // Metodos del navigation drawer.
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -128,7 +131,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -143,7 +146,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_places_visited) {
 
         } else if (id == R.id.nav_exit_to_app) {
-            logOut();
+            openSignOffDialog();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -183,7 +186,7 @@ public class MainActivity extends AppCompatActivity
                 if (status.isSuccess()) {
                     goLogInScreen();
                 } else {
-                    Toast.makeText(getApplicationContext(), R.string.not_close_session, Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), R.string.not_close_session, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -199,6 +202,13 @@ public class MainActivity extends AppCompatActivity
         // Commit a la transacción
         transaction.commit();
     }
+
+    public void openSignOffDialog() {
+        // Se crea una instancia de la clase DialogSignOffFragement y se la muestra.
+        dialogSignOffFragement = new DialogSignOffFragement();
+        dialogSignOffFragement.show(getSupportFragmentManager(), "NoticeDialogFragment");
+    }
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -218,5 +228,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    /* El fragmento de diálogo recibe una referencia a esta Actividad a través de una
+       devolución de llamada Fragment.onAttach(), que utiliza para llamar a los siguientes métodos
+       definido por la interfaz DialogSignOffFragement.NoticeDialogListener.
+    */
+    @Override
+    public void onDialogSigOffClick(android.support.v4.app.DialogFragment dialog) { // Para confirmar la acción de cerrar sesión.
+        logOut();
+    }
+
+    @Override
+    public void onDialogCancelClick(android.support.v4.app.DialogFragment dialog) { // Para cancelar la acción de cerrar sesión.
+        dialogSignOffFragement.getDialog().cancel();
     }
 }

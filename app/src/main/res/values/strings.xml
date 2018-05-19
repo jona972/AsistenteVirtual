@@ -15,4 +15,7 @@
 
     <string name="edit_text_chat">Escribe un mensaje...</string>
     <string name="title_activity_content_messages">ContentMessagesActivity</string>
+
+    <string name="dialog_sign_off_button">Confirmar</string>
+    <string name="dialog_cancel_button">Cancelar</string>
 </resources>
