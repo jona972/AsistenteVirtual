@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.jona.asistentevirtual.Adapters.MessagesAdapter;
 
@@ -21,6 +22,12 @@ public class DialogflowModel {
     // Declaración de variables para interactuar con Dialogflow.
     private AIDataService aiDataService;
     private static final String ACCESS_CLIENT_TOKEN = "118cb22bf2054babbe581439d0483a77";
+
+    // Declaracion de variables para saber que tipo de vista es.
+    private static final int VIEW_TYPE_MESSAGE_USER = 1;
+    private static final int VIEW_TYPE_MESSAGE_CHATBOT = 2;
+    private static final int VIEW_TYPE_MESSAGE_CHATBOT_TYPING = 3;
+    private static final int VIEW_TYPE_MESSAGE_ATTRACTIVE_CHATBOT = 4;
 
     // Declaración de variables para inicializar este modelo.
     private View view;
@@ -54,6 +61,14 @@ public class DialogflowModel {
 
         new AsyncTask<AIRequest, Void, AIResponse>() {
 
+            // Método que se ejecuta antes de que comience el proceso doInBackground().
+            @Override
+            protected void onPreExecute() {
+                MessageTypingToDialogflow();
+            }
+
+            /* Método que se ejecutara despues de onPreExecute(). Este método recibe los parámetros de entrada para ejecutar las instrucciones
+               especificas que irán en segundo plano. */
             @Override
             protected AIResponse doInBackground(AIRequest... aiRequests) {
                 final AIRequest request = aiRequests[0];
@@ -66,10 +81,11 @@ public class DialogflowModel {
                 return null;
             }
 
-            // Método para recibir la respuesta de Dialogflow.
+            // Método que se ejecutara cuando finalize el metodo doInBackground() y pasamos como parametro el resultado que retorna el mismo.
             @Override
             protected void onPostExecute(AIResponse response) {
                 if (response != null) {
+                    RemoveMessageTypingToDialogflow();
                     ResponseToDialogflow(response);
                 }
             }
@@ -84,7 +100,8 @@ public class DialogflowModel {
     // Método para crear un nuevo mensaje del usuario y del ChatBot.
     public void CreateMessage(String message) {
         if (!message.equals("")) { // Se valida el mensaje que sea diferente de nulo para que no envie un texto vació a Dialogflow ni al chat.
-            TextMessageModel textMessageModel = new TextMessageModel(message, true); // Inicializamos la clase con el mensaje y quien envia el mensaje.
+            TextMessageModel textMessageModel = new TextMessageModel(message); // Inicializamos la clase con el mensaje y quien envia el mensaje.
+            textMessageModel.setViewTypeMessage(VIEW_TYPE_MESSAGE_USER);
             listMessagesText.add(textMessageModel);
         }
 
@@ -98,9 +115,10 @@ public class DialogflowModel {
     private void ResponseToDialogflow(AIResponse response) {
         if (response != null) {
             Result result = response.getResult();
+
             String action = result.getAction(); // Variable para reconocer la acción según la pregunta del usuario.
 
-            if(action.equals("weatherAction")) {
+            if(action.equals("weatherAction")) { // Accion cuando es del clima
 
                 final WeatherModel weatherModel = new WeatherModel(view);
                 weatherModel.CurrentWeather(new WeatherModel.WeatherCallback() {
@@ -109,6 +127,10 @@ public class DialogflowModel {
                         MessageSendToDialogflow(response);
                     }
                 });
+            } else if (action.equals("churchInformationAction")) { // Accion cuando es una consulta de un atractivo turistico
+                AttractiveModel attractiveModel = new AttractiveModel();
+                CardDialogflow(attractiveModel, result);
+
             } else {
 
                 String speech = result.getFulfillment().getSpeech();
@@ -117,12 +139,52 @@ public class DialogflowModel {
         }
     }
 
+    private void RemoveMessageTypingToDialogflow() {
+        listMessagesText.remove(listMessagesText.size() - 1);
+        addMessagesAdapter(listMessagesText);
+    }
+
     // Método para enviar la respuesta al usuario.
     private void MessageSendToDialogflow(String message) {
-        TextMessageModel textMessageModel = new TextMessageModel(message, false);
+        TextMessageModel textMessageModel = new TextMessageModel(message);
+        textMessageModel.setViewTypeMessage(VIEW_TYPE_MESSAGE_CHATBOT);
         listMessagesText.add(textMessageModel);
 
-        MessagesAdapter messagesAdapter = new MessagesAdapter(listMessagesText, view.getContext());
+        addMessagesAdapter(listMessagesText);
+    }
+
+    // Método para que el usuario sepa que el chatbot esta escribiendo el mensaje.
+    private void MessageTypingToDialogflow() {
+        TextMessageModel textMessageModel = new TextMessageModel();
+        textMessageModel.setViewTypeMessage(VIEW_TYPE_MESSAGE_CHATBOT_TYPING);
+        listMessagesText.add(textMessageModel);
+
+        addMessagesAdapter(listMessagesText);
+    }
+
+    // Método para enviar la respuesta de la informacion de los atractivos turisticos al usuario.
+    private void CardDialogflow(AttractiveModel attractiveModel, Result result) {
+        TextMessageModel textMessageModel = new TextMessageModel();
+        attractiveModel.readJSONDialogflow(result);
+
+        if (attractiveModel.getState()) { // Para saber si el JSON no esta vacio.
+            // Asignamos los valores leidos del JSON que envia Dialogflow y los asignamos a las varibales del Modelo TextMessageModel.
+            textMessageModel.setViewTypeMessage(VIEW_TYPE_MESSAGE_ATTRACTIVE_CHATBOT);
+            textMessageModel.setNameAttractive(attractiveModel.getNameAttractive());
+            textMessageModel.setCategoryAttactive(attractiveModel.getCategory());
+            textMessageModel.setDescriptionAttractive(attractiveModel.getDescription());
+            textMessageModel.setListImagesURL(attractiveModel.getListImages());
+            listMessagesText.add(textMessageModel);
+            addMessagesAdapter(listMessagesText);
+        } else { // Si el JSON esta vacio enviamos la respuesta por defecto de Dialogflow.
+            String speech = result.getFulfillment().getSpeech();
+            MessageSendToDialogflow(speech);
+        }
+    }
+
+    // Método para adaptar la lista de mensajes a la clase MessagesAdapter.
+    private void addMessagesAdapter(List<TextMessageModel> listMessages) {
+        MessagesAdapter messagesAdapter = new MessagesAdapter(listMessages, view.getContext());
         rvListMessages.setAdapter(messagesAdapter);
         messagesAdapter.notifyDataSetChanged();
         setScrollbarChat();

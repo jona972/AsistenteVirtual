@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/chatBotTypingImage"
+        android:src="@drawable/common_google_signin_btn_icon_light_pressed"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true" />
+
+    <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+        android:id="@+id/dot_progress_bar"
+        android:layout_width="70dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@id/chatBotTypingImage"
+        app:amount="3"
+        app:duration="@android:integer/config_mediumAnimTime"
+        app:startColor="@color/colorPrimary"
+        app:endColor="@color/colorPrimaryDark"
+        app:animationDirection="left"/>
+
+</RelativeLayout>

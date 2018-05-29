@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.jona.asistentevirtual.Adapters.MessagesAdapter;
+import com.example.jona.asistentevirtual.Class.ConectionToIntenetClass;
 import com.example.jona.asistentevirtual.Models.DialogflowModel;
 import com.example.jona.asistentevirtual.Models.TextMessageModel;
 import com.example.jona.asistentevirtual.R;
@@ -105,7 +106,7 @@ public class ChatTextFragment extends Fragment {
 
         btnSendMessage = view.findViewById(R.id.btnSendMessage); // Instanciar la varibale con el id del Button.
 
-        txtMessageUserSend = view .findViewById(R.id.txtUserMessageSend); // Instanciar la varibale con el id del Edit Text.
+        txtMessageUserSend = view.findViewById(R.id.txtUserMessageSend); // Instanciar la varibale con el id del Edit Text.
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
         linearLayoutManager.setStackFromEnd(true);

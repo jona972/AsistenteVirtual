@@ -2,10 +2,13 @@ package com.example.jona.asistentevirtual.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.jona.asistentevirtual.Models.TextMessageModel;
 import com.example.jona.asistentevirtual.R;
@@ -15,9 +18,11 @@ import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter {
 
-    // Para saber si cual si el usuario mando mensaje o el ChatBot.
+    // Para saber que vista se debe adaptar al RecycleView.
     private static final int VIEW_TYPE_MESSAGE_USER = 1;
     private static final int VIEW_TYPE_MESSAGE_CHATBOT = 2;
+    private static final int VIEW_TYPE_MESSAGE_CHATBOT_TYPING = 3;
+    private static final int VIEW_TYPE_MESSAGE_ATTRACTIVE_CHATBOT = 4;
 
     private List<TextMessageModel> listChatModel;
     private Context context;
@@ -41,6 +46,14 @@ public class MessagesAdapter extends RecyclerView.Adapter {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.message_chatbot, parent, false);
             return new ChatBotMessageHolder(view);
+        } else if (viewType == VIEW_TYPE_MESSAGE_CHATBOT_TYPING) { // Si el mensaje es del ChatBotTyping se añade el view de esta al view de la lista de mensajes.
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.chatbot_is_typing, parent, false);
+            return new ChatBotTypingHolder(view);
+        } else if (viewType == VIEW_TYPE_MESSAGE_ATTRACTIVE_CHATBOT) { // Si el mensaje es sobre la informacion de un atractivo turistico.
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.attractive_information, parent, false);
+            return new AttractiveMessageHolder(view);
         }
 
         return null;
@@ -57,6 +70,15 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                 break;
             case VIEW_TYPE_MESSAGE_CHATBOT:
                 ((ChatBotMessageHolder) holder).bind(message);
+                break;
+            case VIEW_TYPE_MESSAGE_CHATBOT_TYPING:
+                ((ChatBotTypingHolder) holder).bind();
+                break;
+            case VIEW_TYPE_MESSAGE_ATTRACTIVE_CHATBOT:
+                AttractiveAdpater attractiveAdpater = new AttractiveAdpater(context, listChatModel.get(position).getListImagesURL());
+                ((AttractiveMessageHolder) holder).viewPager.setAdapter(attractiveAdpater);
+                ((AttractiveMessageHolder) holder).bind(message);
+                break;
         }
     }
 
@@ -69,12 +91,18 @@ public class MessagesAdapter extends RecyclerView.Adapter {
     // Método para determinar el ViewType de acuerdo a quien envio el mensaje.
     @Override
     public int getItemViewType(int position) {
-        if (listChatModel.get(position).isSend()) {
+        if (listChatModel.get(position).getViewTypeMessage() == 1) {
             // Si el usuario mando el mensaje.
             return VIEW_TYPE_MESSAGE_USER;
-        } else {
+        } else if (listChatModel.get(position).getViewTypeMessage() == 2) {
             // Si el ChatBot envio el mensaje.
             return VIEW_TYPE_MESSAGE_CHATBOT;
+        } else if (listChatModel.get(position).getViewTypeMessage() == 3) {
+            // Si el ChatBot esta escribiendo el mensaje.
+            return VIEW_TYPE_MESSAGE_CHATBOT_TYPING;
+        } else {
+            // El chatbot envia un mensaje con informacion de un atractivo turistico
+            return VIEW_TYPE_MESSAGE_ATTRACTIVE_CHATBOT;
         }
     }
 
@@ -103,6 +131,42 @@ public class MessagesAdapter extends RecyclerView.Adapter {
 
         void bind(TextMessageModel message) {
             messageText.setText(message.getMessage()); // Se envia el mensaje del ChatBot.
+        }
+    }
+
+    private class ChatBotTypingHolder extends RecyclerView.ViewHolder {
+
+        ChatBotTypingHolder(View itemView) {
+            super(itemView);
+        }
+
+        void bind() {}
+    }
+
+    // Clase para manipular la informacion de los atractivos y ponerles en sus respectivos componetes para agregarles en el RecycleView.
+    private class AttractiveMessageHolder extends RecyclerView.ViewHolder {
+        // Declaracion de varaibles de acuerdo a los componentes que comprenden el layout: attractive_information.xml
+        TextView txtNameAttractive, txtDescriptionAttractive, txtCategoryAttractive;
+        ViewPager viewPager;
+
+        AttractiveMessageHolder(View itemView) {
+            super(itemView);
+
+            txtDescriptionAttractive = itemView.findViewById(R.id.txtDescriptionPlacesInformation);
+            txtNameAttractive = itemView.findViewById(R.id.txtTitlePlacesInformation);
+            txtCategoryAttractive = itemView.findViewById(R.id.txtCategoryPlacesInformation);
+            viewPager = itemView.findViewById(R.id.vpPlacesInformation);
+        }
+
+        void bind(TextMessageModel message) { // Se asigna la informacion consultada a los TextViews.
+            // Se envia el nombre del atractivo a su respetivo TextView.
+            txtNameAttractive.setText(message.getNameAttractive());
+
+            // Se envia la descripcion del atractivo a su respetivo TextView.
+            txtDescriptionAttractive.setText(Html.fromHtml("<b>Descripción: </b>" + message.getDescriptionAttractive()));
+
+            // Se envia la categoria del atractivo a su respetivo TextView.
+            txtCategoryAttractive.setText(Html.fromHtml("<b>Categoría: </b>" + message.getCategoryAttactive()));
         }
     }
 }
